@@ -59,3 +59,17 @@ A. USE
 34. USING SUBQUERIES IN UPDATE
 35. DELETING ROWS
 36. RESTORING DATABASES
+
+REMAINING ------
+
+1. AGGREGATE (MAX,MIN,COUNT,SUM,AVG)
+2. FULL JOIN  --> nothing but it gives data even matching data between 2 tables are null.
+3. GROUP BY --> columns selected should eigher inside aggregate function / inside group by clause. else throw error.
+4. HAVING  --> will be used in those scenarios WHERE can't be with agg.functions. so when we want condition, we can use HAVING.
+5. EXISTS
+6. ANY ,ALL
+7. SELECT INTO  (5 to 7 NOT IMPORTANT)
+8. CASE  --> same as if else condition.
+9. NULL FUNCTIONS (IFNULL() , COALESCE()) --> both are same and returns alternative value if value is null anyone can be used.
+10. STORED PROCEDURES  --> syntax should be remembered.
+11. SQL DB TOPICS  --> ALTER TABLE
