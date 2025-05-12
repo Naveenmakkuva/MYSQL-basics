@@ -397,6 +397,142 @@ DELETE FROM invoices
     
 -- RESTORING DATABASES just run script before we downloaded and run script. in that we have drop and create fresh data base.
 
+-- TO GET BACKUP :: got to server on top toolbar and select data export and then under export options, select self_contained option and start export.
+----------------------- o ------------------------
+
+-- AGGREGATE FUNCTIONS in sql.
+
+SELECT MIN(points) FROM customers;
+SELECT MAX(points) FROM customers;
+SELECT AVG(points) FROM customers;
+SELECT SUM(points) FROM customers;
+SELECT COUNT(points) FROM customers;
+
+-- GROUP BY clause.
+-- Rules : whatever column we select should be either inside aggrigate function or should be in group by clause.
+
+SELECT 
+	product_id, 
+    SUM(quantity) AS total_quantity, 
+    SUM(unit_price) AS total_price  
+FROM order_items 
+-- here we used GROUP BY so this will perform distince operation on product_id and gives all product_id.
+-- all the quantity will be added for that product_id and will be given as singel op similarly for unit_price also.
+GROUP BY product_id;
+
+SELECT customer_id, COUNT(order_id) AS total_orders FROM orders GROUP BY customer_id;
+
+SELECT state, COUNT(customer_id) AS customer_count FROM customers GROUP BY state ORDER BY state DESC;
+
+-- each customer with total order count with total unit_price paid.
+
+SELECT 
+	c.customer_id,
+    CONCAT(c.first_name," ",last_name) AS customer_name,
+    COUNT(DISTINCT order_id) AS total_orders,
+    SUM(oi.quantity*oi.unit_price) AS total_price
+FROM customers c 
+JOIN orders o USING (customer_id) 
+JOIN order_items oi USING (order_id) 
+GROUP BY customer_id;
+
+-- HAVING 
+-- this can't be used with agg.functions. so when we want to add condition/filter, we can use this.
+
+SELECT 
+	c.customer_id,
+    CONCAT(c.first_name," ",last_name) AS customer_name,
+    COUNT(DISTINCT order_id) AS total_orders,
+    SUM(oi.quantity*oi.unit_price) AS total_price
+FROM customers c 
+JOIN orders o USING (customer_id) 
+JOIN order_items oi USING (order_id) 
+GROUP BY customer_id, customer_name
+HAVING total_price >= 100;
+
+-- CASE 
+-- SIMILAR TO IF ELSE CONDITION.
+
+SELECT 
+customer_id,
+CONCAT(first_name, " ",last_name) AS customer_name,
+CASE
+	WHEN points > 2000 THEN "GOLD CUSTOMER"
+    WHEN points BETWEEN 1000 AND 2000 THEN "SILVER CUSTOMER"
+    ELSE "BRONZE CUSTOMER"
+END AS customer_badge
+FROM customers
+ORDER BY customer_badge;
+
+SELECT
+*
+FROM customers
+WHERE (
+CASE
+	WHEN points > 2000 THEN "GOLD"
+    WHEN points BETWEEN 1000 AND 2000 THEN "SILVER"
+    ELSE "BRONZE"
+END);
+
+-- IFNULL() / COALESCE
+-- both are same and returns alternative value if value is null anyone can be used.
+
+SELECT * FROM customers WHERE coalesce(points=500,1000);
+SELECT * FROM customers WHERE IFNULL(points=200,0);
+
+-- STORED PROCEDURES ****
+
+DELIMITER $$
+CREATE PROCEDURE getMinPoints(IN points_ent INT)
+BEGIN
+	SELECT * FROM customers WHERE (points <points_ent);
+END $$
+DELIMITER ;
+
+CALL getMInPoints(2000);
+
+DROP PROCEDURE IF EXISTS getMinPoints;
+
+DELIMITER $$
+CREATE PROCEDURE getpoints(pointss INT)
+BEGIN
+SELECT * FROM customers WHERE points <= pointss;
+END $$
+DELIMITER ;
+
+CALL getPoints(1000);
+
+DROP PROCEDURE IF EXISTS getPoints;
+
+DELIMITER $$
+CREATE PROCEDURE samplePoints()
+BEGIN
+SELECT * FROM customers;
+END $$
+DELIMITER ;
+
+CALL samplePoints;
+
+DROP PROCEDURE IF EXISTS samplePoints;
+
+DELIMITER $$
+CREATE PROCEDURE getMax(points INT)
+BEGIN 
+SELECT * FROM customers WHERE points > points; 
+END $$
+DELIMITER ;
+
+CALL getMax(2000);
+
+DROP PROCEDURE IF EXISTS getMax; 
+
+-- ALTER generally used to rename/drop existing tables/columns
+ALTER TABLE customers
+	CHANGE phone phone_number VARCHAR(50);
+    
+ALTER TABLE customers
+	CHANGE phone_number phone VARCHAR(50);
+
 */
 -- 06-05-2025
 -- 1 "SELECT" CALUSE STARTS HERE
@@ -776,3 +912,6 @@ WHERE customer_id IN (
 SELECT customer_id 
 FROM customers
 WHERE points > 3000);
+
+-- 12-05-2025
+
