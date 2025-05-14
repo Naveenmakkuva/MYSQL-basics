@@ -437,7 +437,7 @@ JOIN order_items oi USING (order_id)
 GROUP BY customer_id;
 
 -- HAVING 
--- this can't be used with agg.functions. so when we want to add condition/filter, we can use this.
+-- this can't be used with agg.functions. so when we want to add condition/filter on the result, we can use this.
 
 SELECT 
 	c.customer_id,
