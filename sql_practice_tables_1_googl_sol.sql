@@ -1,4 +1,5 @@
 -- SQL practice questions :
+
 -- 1. Write an SQL query to fetch the EmpId and FullName of all the employees working under the Manager with id – ‘986’.
 -- 2. Write an SQL query to fetch the different projects available from the EmployeeSalary table.
 -- 3. Write an SQL query to fetch the count of employees working in project ‘P1’.
@@ -52,35 +53,112 @@
 -- 51. Consider a table EmployeeAttendance with columns – AttendanceID, EmployeeID, Date, Status. Write a query to find employees with more than 5 absences in a month.
 -- --------------------------- 0 ---------------------
 
--- 1. Write an SQL query to fetch the EmpId and FullName of all the employees working under the Manager with id – ‘986’.
+-- 1. Write an SQL query to fetch the EmpId and FullName of all the employees working under the manager with id – ‘986’.
+SELECT * FROM employee_details WHERE manager_id = 986;
 
 -- 2. Write an SQL query to fetch the different projects available from the EmployeeSalary table.
+SELECT project FROM employee_salary WHERE project IS NOT NULL;
+
 -- 3. Write an SQL query to fetch the count of employees working in project ‘P1’.
+SELECT project , COUNT(*) AS employee_count FROM employee_salary WHERE project IS NOT NULL GROUP BY project;
+
 -- 4. Write an SQL query to find the maximum, minimum, and average salary of the employees.
+SELECT MAX(salary) AS max_sal, MIN(salary) AS min_sal, avg(salary) AS average_sal FROM employee_salary GROUP BY salary;
+
 -- 5. Write an SQL query to find the employee id whose salary lies in the range of 9000 and 15000.
+SELECT * FROM employee_salary WHERE salary BETWEEN 9000 AND 15000;
+
 -- 6. Write an SQL query to fetch those employees who live in Toronto and work under the manager with ManagerId – 321.
+SELECT * FROM employee_details WHERE city = "TORONTO" AND manager_id = 321;
+
 -- 7. Write an SQL query to fetch all the employees who either live in California or work under a manager with ManagerId – 321.
+SELECT * FROM employee_details WHERE city = "California" OR manager_id = 321;
+
 -- 8. Write an SQL query to fetch all those employees who work on Projects other than P1.
+SELECT * FROM employee_details ed JOIN employee_salary es USING (emp_id) WHERE es.project != "p1";
+
 -- 9. Write an SQL query to display the total salary of each employee adding the Salary with Variable value.
+SELECT emp_id,salary, variable, salary+variable AS total_salary FROM employee_salary;
+
 -- 10. Write an SQL query to fetch the employees whose name begins with any two characters, followed by a text “hn” and ends with any sequence of characters.
+SELECT * FROM employee_details WHERE full_name LIKE "__hn%";
+SELECT * FROM employee_details WHERE full_name REGEXP "hn";
+
 -- 11. Write an SQL query to fetch all the EmpIds which are present in either of the tables – ‘EmployeeDetails’ and ‘EmployeeSalary’.
+SELECT emp_id FROM employee_details
+UNION
+SELECT emp_id FROM employee_salary;
+
 -- 12. Write an SQL query to fetch common records between two tables.
+SELECT * FROM employee_details JOIN employee_salary USING (emp_id);
+
 -- 13. Write an SQL query to fetch records that are present in one table but not in another table.
+SELECT * FROm employee_details LEFT JOIN employee_salary USING (emp_id);
+
 -- 14. Write an SQL query to fetch the EmpIds that are present in both the tables –  ‘EmployeeDetails’ and ‘EmployeeSalary.
+-- we can use full join but not preferrable since we must use filter for emp_id not null.
+SELECT * FROM employee_details JOIN employee_salary USING (emp_id);
+
 -- 15. Write an SQL query to fetch the EmpIds that are present in EmployeeDetails but not in EmployeeSalary.
+SELECT * FROm employee_details LEFT JOIN employee_salary USING (emp_id);
+
 -- 16. Write an SQL query to fetch the employee’s full names and replace the space with ‘-’.
+SELECT full_name, replace(full_name," ","-") AS formatted_names FROM employee_details;
+
 -- 17. Write an SQL query to fetch the position of a given character(s) in a field.
+SELECT full_name , instr(full_name,"a") FROM employee_details;
+
 -- 18. Write an SQL query to display both the EmpId and ManagerId together.
+SELECT CONCAT(emp_id,"_",manager_id) AS merged_id FROM employee_details;
+
 -- 19. Write a query to fetch only the first name(string before space) from the FullName column of the EmployeeDetails table.
+SELECT SUBSTRING(full_name,1,INSTR(full_name," ")) FROM employee_details;
+
+-- to get last name
+SELECT SUBSTRING(full_name,INSTR(full_name," ")) AS last_name FROM employee_details;
+
 -- 20. Write an SQL query to uppercase the name of the employee and lowercase the city values.
+SELECT upper(full_name), lower(city) FROM employee_details;
+
 -- 21. Write an SQL query to find the count of the total occurrences of a particular character – ‘n’ in the FullName field.
+SELECT emp_id, SUM(length(full_name) - length(replace(full_name,"n",""))) FROM employee_details GROUP BY emp_Id;
+
 -- 22. Write an SQL query to update the employee names by removing leading and trailing spaces.
+SELECT ltrim(full_name), rtrim(full_name) FROM employee_details;
+-- update query
+UPDATE employee_details SET full_name = LTRIM(RTRIM(full_name));
+
 -- 23. Write an SQL query to update the Salary field by value 10% in case of ‘Employee’ and 5% in case of ‘Manager’.
+
+UPDATE employee_salary SET salary = round(salary+((salary*5)/100))
+WHERE emp_id IN (
+	SELECT DISTINCT emp_id FROM (
+		SELECT m.emp_id FROM employee_details e JOIN employee_details m ON e.manager_id = m.emp_Id
+    ) AS derived
+);
+
+UPDATE employee_salary SET salary = round(salary + ((salary*10)/100))
+WHERE emp_id NOT IN (
+	SELECT emp_id FROM (
+		SELECT DISTINCT m.emp_Id FROM employee_details e JOIN employee_details m ON e.manager_id = m.emp_Id
+	) AS derived
+);
+
 -- 24. Fetch all the employees who are not working on any project.
+SELECT * FROM employee_salary WHERE project IS NULL;
+
 -- 25. Write an SQL query to fetch employee names having a salary greater than or equal to 5000 and less than or equal to 10000.
+SELECT * FROM employee_salary WHERE salary BETWEEN 5000 AND 10000;
+
 -- 26. Write an SQL query to find the current date-time.
+SELECT current_timestamp();
+
 -- 27. Write an SQL query to fetch all the Employee details from the EmployeeDetails table who joined in the Year 2020.
+SELECT * FROM employee_details WHERE YEAR(date_of_joining)= 2020;
+
 -- 28. Write an SQL query to fetch all employee records from the EmployeeDetails table who have a salary record in the EmployeeSalary table.
+SELECT * FROM employee_salary JOIN employee_details USING (emp_id);
+
 -- 29. Write an SQL query to fetch the project-wise count of employees sorted by project’s count in descending order.
 SELECT project, count(emp_id) AS employees FROM employee_salary GROUP BY project;
 
